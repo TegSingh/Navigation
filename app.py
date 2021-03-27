@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from main import *
+from nav import generate_route
 
 app = Flask(__name__)
 
@@ -13,11 +13,10 @@ def routeFinder():
         startAddress = request.form['startAddress'] 
         endAddress = request.form['endAddress']
         displayAddress(startAddress, endAddress)            
-        return render_template('display.html', start = startAddress, end = endAddress)
+        return render_template('route.html', start = startAddress, end = endAddress)
 
 def displayAddress(start, end): 
-    print(start)
-    print(end)
+    generate_route(start, end)
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)
