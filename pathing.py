@@ -1,6 +1,4 @@
 from heapq import heappush, heappop
-from itertools import count
-import networkx as nx
 
 # uses node lowest node length to determine cost of node. If there is no length, it is assumed the length is 1 (houses etc.)
 def calc_weight(node):
