@@ -9,7 +9,7 @@ from sklearn.neighbors import KDTree
 # optimize this later to get a better box
 def calc_box_points(start, end):
 
-    # add a kilometer to each furthest point as long/lat points
+    # add 3 kilometers to each furthest point as long/lat points
     N = max(start[0], end[0]) + 3 / 111.321543
     S = min(start[0], end[0]) - 3 / 111.321543
     E = max(start[1], end[1]) + abs(3 / (math.cos(max(start[1], end[1])) * 111.321543))

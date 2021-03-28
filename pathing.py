@@ -10,6 +10,21 @@ def dijkstras(osm_graph, start, end):
     # a dictionary of possible paths. By default, the path consists only of the start node
     paths = {start: [start]}
 
+    """
+    Example of how paths are built
+
+    start = 5
+    paths = { 5: [ 5 ] }
+
+    node = 7
+
+    paths[7]  = paths[5], 7
+
+    paths = { 5: [5], 7: [5, 7], 9: [5, 7, 9]} 
+
+    end = 9
+    """
+
     # a dictionary of distances for each node used
     distances = {}
 
