@@ -2,90 +2,50 @@ from heapq import heappush, heappop
 from itertools import count
 import networkx as nx
 
-def _weight_function(G, weight):
-    if callable(weight):
-        return weight
-    # If the weight keyword argument is not callable, we assume it is a
-    # string representing the edge attribute containing the weight of
-    # the edge.
-    if G.is_multigraph():
-        return lambda u, v, d: min(attr.get(weight, 1) for attr in d.values())
-    return lambda u, v, data: data.get(weight, 1) 
+# uses node lowest node length to determine cost of node. If there is no length, it is assumed the length is 1 (houses etc.)
+def calc_weight(node):
+    return min([v.get("length", 1) for v in node.values()])
 
-def dijkstra_path(G, source, target, weight="weight"):
-    (_, path) = single_source_dijkstra(G, source, target=target, weight=weight)
-    return path
+def dijkstras(osm_graph, start, end):
+    # a dictionary of possible paths. By default, the path consists only of the start node
+    paths = {start: [start]}
 
-def single_source_dijkstra(G, source, target=None, cutoff=None, weight="weight"):
-    return multi_source_dijkstra(
-        G, {source}, cutoff=cutoff, target=target, weight=weight
-    )
+    # a dictionary of distances for each node used
+    distances = {}
 
-def multi_source_dijkstra(G, sources, target=None, cutoff=None, weight="weight"):
-    if not sources:
-        raise ValueError("sources must not be empty")
-    if target in sources:
-        return (0, [target])
-    weight = _weight_function(G, weight)
-    paths = {source: [source] for source in sources}  # dictionary of paths
-    dist = _dijkstra_multisource(
-        G, sources, weight, paths=paths, cutoff=cutoff, target=target
-    )
-    if target is None:
-        return (dist, paths)
-    try:
-        return (dist[target], paths[target])
-    except KeyError as e:
-        raise nx.NetworkXNoPath(f"No path to {target}.") from e
+    # a dictionary of visited nodes
+    visited = {}
 
-def _dijkstra_multisource(G, sources, weight, pred=None, paths=None, cutoff=None, target=None):
-    G_succ = G._succ if G.is_directed() else G._adj
+    # an array containing distance to a node and the nodes id. By default the start node is the only node
+    nodes = [(0, start)]
 
-    push = heappush
-    pop = heappop
-    dist = {}  # dictionary of final distances
-    seen = {}
-    # fringe is heapq with 3-tuples (distance,c,node)
-    # use the count c to avoid comparing nodes (may not be able to)
-    c = count()
-    fringe = []
-    for source in sources:
-        if source not in G:
-            raise nx.NodeNotFound(f"Source {source} not in G")
-        seen[source] = 0
-        push(fringe, (0, next(c), source))
-    while fringe:
-        (d, _, v) = pop(fringe)
-        if v in dist:
-            continue  # already searched this node.
-        dist[v] = d
-        if v == target:
-            break
-        for u, e in G_succ[v].items():
-            cost = weight(v, u, e)
-            if cost is None:
-                continue
-            vu_dist = dist[v] + cost
-            if cutoff is not None:
-                if vu_dist > cutoff:
-                    continue
-            if u in dist:
-                u_dist = dist[u]
-                if vu_dist < u_dist:
-                    raise ValueError("Contradictory paths found:", "negative weights?")
-                elif pred is not None and vu_dist == u_dist:
-                    pred[u].append(v)
-            elif u not in seen or vu_dist < seen[u]:
-                seen[u] = vu_dist
-                push(fringe, (vu_dist, next(c), u))
-                if paths is not None:
-                    paths[u] = paths[v] + [u]
-                if pred is not None:
-                    pred[u] = [v]
-            elif vu_dist == seen[u]:
-                if pred is not None:
-                    pred[u].append(v)
+    # iterate until there are no more nodes to be used
+    while nodes:
+        # pop node from heapq
+        (dist, node_id) = heappop(nodes)
 
-    # The optional predecessor and path dictionaries can be accessed
-    # by the caller via the pred and paths objects passed as arguments.
-    return dist
+        # skip node if already been visited
+        if node_id in distances:
+            continue
+
+        # add nodes distance to distances dict
+        distances[node_id] = dist
+
+        # iterate over nodes in graph
+        for u, node in osm_graph[node_id].items():
+
+            # calculate cost
+            cost = calc_weight(node)
+
+            # set new_distance to be current distance + new cost
+            new_distance = distances[node_id] + cost
+
+            # if the node hasn't been visited or the new distance is less than the previous cost to get to that node
+            # set the nodes new lowest cost, push it onto the heap and add it to the nodes path
+            if u not in visited or new_distance < visited[u]:
+                visited[u] = new_distance
+                heappush(nodes, (new_distance, u))
+                paths[u] = paths[node_id] + [u]
+
+    # return the shortest path from the dictionary of possible paths
+    return paths[end]
