@@ -10,8 +10,8 @@ from sklearn.neighbors import KDTree
 def calc_box_points(start, end):
 
     # add a kilometer to each furthest point as long/lat points
-    N = max(start[0], end[0]) + 5 / 111.321543
-    S = min(start[0], end[0]) - 5 / 111.321543
+    N = max(start[0], end[0]) + 3 / 111.321543
+    S = min(start[0], end[0]) - 3 / 111.321543
     E = max(start[1], end[1]) + abs(5 / (math.cos(max(start[1], end[1])) * 111.321543))
     W = min(start[1], end[1]) - abs(5 / (math.cos(min(start[1], end[1])) * 111.321543))
 
@@ -26,7 +26,6 @@ def generate_route(start_address, end_address):
 
     # generate multi digraph from osm data
     osm_graph = ox.graph_from_bbox(north=N, south=S, east=E, west=W, truncate_by_edge=True)
-
 
     # show both geocodes on map
     fig, ax = ox.plot_graph(osm_graph, figsize=(10, 10), show=False, close=False, edge_color='black')

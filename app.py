@@ -12,11 +12,8 @@ def routeFinder():
     if request.method == 'POST': 
         startAddress = request.form['startAddress'] 
         endAddress = request.form['endAddress']
-        displayAddress(startAddress, endAddress)            
+        generate_route(startAddress, endAddress)
         return render_template('route.html', start = startAddress, end = endAddress)
-
-def displayAddress(start, end): 
-    generate_route(start, end)
 
 if __name__ == '__main__':
     app.run(port = 5000, debug = True)

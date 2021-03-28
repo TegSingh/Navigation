@@ -7,13 +7,19 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>      
+        <script>
+            function removeLoader(){
+                document.getElementById("mainblock1").style.display = 'none'
+                document.getElementById('mainblock2').style.display = 'none'
+                document.getElementById("loading").style.display = 'block'
+            }
+        </script>
     </head>
     <body>
-        <div class="jumbotron text-center">
+        <div class="jumbotron text-center" id="mainblock1">
             <h1>Navigation System</h1>
-            <p>Enter Start and End Address</p>
         </div>
-        <div class="container">
+        <div class="container" id="mainblock2">
             <form action="/route_finder" method="POST">
                 <div class="form-group">
                     <input name="startAddress" type="text" class="form-control" placeholder="Enter Start Address" id="start_address">
@@ -21,8 +27,15 @@
                 <div class="form-group">
                     <input name="endAddress" type="text" class="form-control" placeholder="Enter End Address" id="end_address">
                 </div>
-                <button type="submit" class="btn btn-primary btn-block" >Find Route</button>
+                <button type="submit" id="btn-submit" class="btn btn-primary btn-block" onclick="removeLoader()">Find Route</button>    
             </form>
+        </div>
+        <br><br><br><br><br><br><br><br><br>
+        <div class="jumbotron text-center" id="loading" style="display: none; border: solid 1pt black;">
+            <div class="d-flex align-items-center">
+                <h1>Loading Route...</h1>
+                <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+            </div>
         </div>
     </body>
 </html>
