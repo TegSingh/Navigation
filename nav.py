@@ -68,8 +68,8 @@ def generate_route(start_address, end_address):
     print(f"Google distance: {google_dist}")
 
     # calculate accuracy of pathing
-    accuracy = abs(((distance - google_dist) / (google_dist)) * 100)
-    if accuracy < 10.0:
+    accuracy = 100 - abs(((distance - google_dist) / (google_dist)) * 100)
+    if accuracy >= 90.0:
         print(f"{Fore.GREEN}Accuracy: {round(accuracy, 2)}% {Style.RESET_ALL}")
     else:
         print(f"{Fore.RED}Accuracy: {round(accuracy, 2)}% {Style.RESET_ALL}")
