@@ -15,10 +15,10 @@ pip install requirements.txt
 ```
 
 If you prefer, the dependencies can be installed individually. This project uses:
-* geopy
 * osmnx
 * folium
 * flask
+* sklearn
 
 Next create a file in the home directory called __api_key.txt__. This file stores the api key for google maps that is being read in by the application and will need to have the key added to its first line. As this repo is public and google services are not free, we have not included our api key however the api key will be included in the dropbox submission on canvas. The key will be deactivated on May 1 2021. Alternatively you can create your own api key with google and enable it for distance matrix.
 
