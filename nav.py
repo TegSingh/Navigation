@@ -5,6 +5,7 @@ import folium
 from sklearn.neighbors import KDTree
 import requests
 from colorama import Fore, Style
+import time
 
 # optimize this later to get a better box
 def calc_box_points(start, end):
@@ -35,12 +36,15 @@ def generate_route(start_address, end_address):
     # get bounding box coordinates
     N, S, E, W = calc_box_points(start_geocode, end_geocode)
 
+    print(f"\n{Fore.BLUE}Creating osm graph...{Style.RESET_ALL}")
     # generate multi digraph from osm data
+    start = time.time()
     osm_graph = ox.graph_from_bbox(north=N, south=S, east=E, west=W, truncate_by_edge=True)
+    end = time.time()
+    print(f"{Fore.GREEN}Osm graph created in {round(end - start, 2)} seconds!{Style.RESET_ALL}\n")
 
     # get nodes from osm_graph
     nodes, _ = ox.graph_to_gdfs(osm_graph)
-    # print(nodes.values())
 
     # convert nodes into KDTree, uses euclidean distance by default
     kd_tree = KDTree(nodes[['y', 'x']])
@@ -53,11 +57,15 @@ def generate_route(start_address, end_address):
     end_node = nodes.iloc[end_index].index.values[0]
 
     # display route on graph
+    print(f"{Fore.BLUE}Calculating route...{Style.RESET_ALL}")
+    start = time.time()
     route, distance = dijkstras(osm_graph, start_node, end_node)
+    end = time.time()
+    print(f"{Fore.GREEN}Route calculated in {round((end - start) * 1000, 2)} ms!{Style.RESET_ALL}")
 
     print()
-    print("Distance:", distance)
-    print("Google distance:", google_dist)
+    print(f"Distance: {distance}m")
+    print(f"Google distance: {google_dist}")
 
     # calculate accuracy of pathing
     accuracy = abs(((distance - google_dist) / (google_dist)) * 100)

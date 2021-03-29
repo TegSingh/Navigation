@@ -41,7 +41,7 @@ def dijkstras(osm_graph, start, end):
     # a dictionary of visited nodes
     visited = {}
 
-    # an array containing distance to a node and the nodes id. By default the start node is the only node
+    # an array containing cost to a node, distance to a node and the nodes id. By default the start node is the only node
     nodes = [(0, 0, start)]
 
     # iterate until there are no more nodes to be used
@@ -77,4 +77,5 @@ def dijkstras(osm_graph, start, end):
                 paths[u] = paths[node_id] + [u]
 
     # return the shortest path from the dictionary of possible paths
+    # and the real distance to the end node in meters
     return paths[end], distances[end]
