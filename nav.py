@@ -1,10 +1,10 @@
-import geopy
 import math
 import osmnx as ox
 from pathing import dijkstras
 import folium
-import matplotlib.pyplot as plt
 from sklearn.neighbors import KDTree
+import requests
+from colorama import Fore, Style
 
 # optimize this later to get a better box
 def calc_box_points(start, end):
@@ -18,6 +18,17 @@ def calc_box_points(start, end):
     return N, S, E, W
 
 def generate_route(start_address, end_address):
+    # read in api key
+    api_file = open("api_key.txt", "r")
+    api_key = api_file.read()
+    api_file.close()
+
+    url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&"
+
+    # get distance google maps finds for path
+    res = requests.get(url + "origins=" + start_address + "&destinations=" + end_address + "&key=" + api_key)
+    google_dist = res.json()['rows'][0]['elements'][0]['distance']['value']
+
     start_geocode = ox.geocode(start_address)
     end_geocode = ox.geocode(end_address)
 
@@ -29,10 +40,12 @@ def generate_route(start_address, end_address):
 
     # get nodes from osm_graph
     nodes, _ = ox.graph_to_gdfs(osm_graph)
+    # print(nodes.values())
 
     # convert nodes into KDTree, uses euclidean distance by default
     kd_tree = KDTree(nodes[['y', 'x']])
 
+    # use tree structure to quickly find nearest node
     start_index = kd_tree.query([start_geocode], return_distance=False)[0]
     end_index = kd_tree.query([end_geocode], return_distance=False)[0]
 
@@ -40,7 +53,20 @@ def generate_route(start_address, end_address):
     end_node = nodes.iloc[end_index].index.values[0]
 
     # display route on graph
-    route = dijkstras(osm_graph, start_node, end_node)
+    route, distance = dijkstras(osm_graph, start_node, end_node)
+
+    print()
+    print("Distance:", distance)
+    print("Google distance:", google_dist)
+
+    # calculate accuracy of pathing
+    accuracy = abs(((distance - google_dist) / (google_dist)) * 100)
+    if accuracy < 10.0:
+        print(f"{Fore.GREEN}Accuracy: {round(accuracy, 2)}% {Style.RESET_ALL}")
+    else:
+        print(f"{Fore.RED}Accuracy: {round(accuracy, 2)}% {Style.RESET_ALL}")
+
+    print()
 
     # overlay route onto map and set icons to show start and end
     route_map = ox.plot_route_folium(osm_graph, route)
