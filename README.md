@@ -11,7 +11,7 @@ source ./env/bin/activate
 
 Install dependencies
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 If you prefer, the dependencies can be installed individually. This project uses:

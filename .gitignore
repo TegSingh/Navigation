@@ -3,3 +3,4 @@ __pycache__/
 cache/
 templates/route.html
 api_key.txt
+.vscode/
